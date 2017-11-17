@@ -17,18 +17,12 @@ class QSBK:
     def getPage(self,pageIndex):
         try:
             url = 'http://www.qiushibaike.com/hot/page/' + str(pageIndex)
-            request = urllib2.Request(url, headers = self.headers)
-            urllib2.ProxyHandler(proxies=
-                                 dict(
-                                     http='socks5://127.0.0.1:1080',
-                                     https='socks5://127.0.0.1:1080'))
-            print('1')
-            response = urllib2.urlopen(request,timeout=5)
-            print('1')
+            url2 = 'http://www.google.com/'
+            request = urllib2.Request(url2, headers = self.headers)
+            request.set_proxy('127.0.0.1:1080', 'http')
+            response = urllib2.urlopen(request)
             pageCode = response.read().decode('utf8')
-            print('1')
             print(pageCode)
-            print('1')
 
         except urllib2.URLError as e:
             print(e)
