@@ -1,0 +1,11 @@
+metal 1.m 0
+wood 3.m 0
+plastic 9.m 0
+seed 20.m 0
+minerals 30.m 0
+chemical_material 2.h 0
+textile 3.h 0
+sugar_and_spices 4.h 0
+glass 5.h 0
+animal_feed 6.h 0
+electronic_component 7.h 0
