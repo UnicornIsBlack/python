@@ -17,9 +17,10 @@ class QSBK:
     def getPage(self,pageIndex):
         try:
             url = 'http://www.qiushibaike.com/hot/page/' + str(pageIndex)
-            url2 = 'http://www.baidu.com/'
-            request = urllib2.Request(url2, headers = self.headers)
-            request.set_proxy('127.0.0.1:8123', 'http')
+            url = 'http://www.baidu.com/'
+            # url = 'https://www.google.com/'
+            request = urllib2.Request(url, headers = self.headers)
+            # request.set_proxy('127.0.0.1:10800', 'http')
             response = urllib2.urlopen(request)
             pageCode = response.read().decode('utf8')
             print(pageCode)
