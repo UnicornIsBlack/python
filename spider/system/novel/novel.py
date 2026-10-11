@@ -5,15 +5,15 @@
 # @Project : python
 
 import re
-import time
 from collections import defaultdict
 
-from spider.request.request import Request
+from request.request import Request
+from utils.language import Language
 from utils.logger import LogManager
 
 
 class Novel:
-    def __init__(self, name, uri, start_suffix):
+    def __init__(self, name, uri, start_suffix, is_t2s=False):
         super().__init__()
         self.uri = uri
         self.request = Request()
@@ -24,7 +24,10 @@ class Novel:
         self._chapter2content = defaultdict(list)
         self._chapters = []
         self._cur_suffix = start_suffix
+        self._is_t2s = is_t2s        # 繁体转简体
+        self._language = Language()
 
+        self._chapter_idx = -1
         self._title_re_str = None
         self._next_url_re_str = None
         self._content_re_str = None
@@ -85,33 +88,58 @@ class Novel:
             parts.append(part.strip() + "\n")
         return parts[:-1] if parts else parts
 
+    def get_cur_content(self, response):
+        return self.get_re_result(response, self.content_re_str)
+
+    def get_title(self, response):
+        return self.get_re_result(response, self.title_re_str).strip()
+
     def get_cur_chapter(self):
         response = self.get_cur_response()
-
-        title = self.get_re_result(response, self.title_re_str).strip()
-
-        content = self.get_re_result(response, self.content_re_str)
-        parts = self.get_parts(content)
-
+        if self._is_t2s:
+            response = self._language.traditional_to_simplified(response)
+        # self.logger.info(response)
+        title = self.get_title(response)
         self.logger.info(title)
+
+        content = self.get_cur_content(response)
+        # self.logger.info(content)
+        parts = self.get_parts(content)
+        if not parts:
+            self.logger.warn(content)
+
         if title:
             self._chapter2content[title].extend(parts)
         if title not in self._chapters:
             self._chapters.append(title)
 
         self._cur_suffix = self.get_re_result(response, self.next_url_re_str)
+        # self.logger.info(self._cur_suffix)
 
     def get_total_novel(self):
         i = 0
-        while self._cur_suffix:
-            self.get_cur_chapter()
-            time.sleep(0.1)
+        re_try_cnt = 0
+        while self._cur_suffix and (self._chapter_idx == -1 or i < self._chapter_idx):
+            try:
+                self.get_cur_chapter()
+                is_exception = False
+            except Exception as e:
+                is_exception = True
+                self.logger.error(e)
+            # time.sleep(0.1)
+            if is_exception:
+                if re_try_cnt < 10:
+                    re_try_cnt += 1
+                    continue
+                else:
+                    break
+            re_try_cnt = 0
             i += 1
         self.write_to_file()
 
     def write_to_file(self):
         with open("../Download/Novel/%s.txt" % self.name, "w", encoding="UTF-8") as f:
             for chapter in self._chapters:
-                f.write("%s\n" % chapter)
+                f.write("\n%s\n" % chapter)
                 contents = self._chapter2content.get(chapter, [])
                 f.writelines(contents)

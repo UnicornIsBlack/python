@@ -3,7 +3,7 @@
 # @Author : cmh
 # @File : novel_38xs.py
 # @Project : python
-from spider.system.novel.novel import Novel
+from system.novel.novel import Novel
 
 
 class Novel38XS(Novel):
