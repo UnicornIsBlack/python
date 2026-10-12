@@ -15,9 +15,9 @@ class NovelCZ(Novel):
         self.set_re_str()
 
     def set_re_str(self):
-        self.title_re_str = r'<h1 id="timu">(.*?)</h1>'
-        self.next_url_re_str = r'<a href="(.*?)" id="next" title='
-        self.content_re_str = r'<div id="contentbox"  class="uu_cont">([\s\S]*?)</div>'
+        self.title_re_str = r'<div\s+class\s*=\s*"name"[^>]*>([\s\S]*?)</div>'
+        self.next_url_re_str = r'<a\s+class\s*=\s*"next-chapter"\s+href="(.*?)"'
+        self.content_re_str = r'<div\s+class\s*=\s*"content"[^>]*>([\s\S]*?)</div>'
         self.part_re_str = r'<p>([\s\S]*?)</p>'
 
     def get_parts(self, content):
