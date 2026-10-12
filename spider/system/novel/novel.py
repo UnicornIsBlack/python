@@ -6,6 +6,7 @@
 
 import re
 from collections import defaultdict
+from pathlib import Path
 
 from request.request import Request
 from utils.language import Language
@@ -69,6 +70,10 @@ class Novel:
         self.next_url_re_str = next_url_re_str
 
     def get_cur_url(self):
+        if self._cur_suffix.startswith(("http://", "https://")):
+            return self._cur_suffix
+        if self._cur_suffix.startswith("//"):
+            return "https:" + self._cur_suffix
         return self.uri + self._cur_suffix
 
     def get_cur_response(self):
@@ -138,7 +143,10 @@ class Novel:
         self.write_to_file()
 
     def write_to_file(self):
-        with open("../Download/Novel/%s.txt" % self.name, "w", encoding="UTF-8") as f:
+        output_dir = Path(__file__).resolve().parents[3] / "Download" / "Novel"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_file = output_dir / ("%s.txt" % self.name)
+        with output_file.open("w", encoding="UTF-8") as f:
             for chapter in self._chapters:
                 f.write("\n%s\n" % chapter)
                 contents = self._chapter2content.get(chapter, [])
